@@ -1,0 +1,64 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --background: #0b1420;
+  --foreground: #e7eef5;
+  --panel: #142337;
+  --border: #2c4157;
+  --muted: #a9b9cb;
+  --cyan: #55b8e8;
+  --amber: #e6ad57;
+  --red: #d96767;
+  --green: #53be8b;
+}
+
+html,
+body {
+  height: 100%;
+}
+
+body {
+  color: var(--foreground);
+  background: var(--background);
+  font-family: var(--font-ibm-plex-sans), system-ui, sans-serif;
+  font-size: 14px;
+  line-height: 1.45;
+  -webkit-font-smoothing: antialiased;
+  overflow-x: hidden;
+}
+
+button,
+a,
+select {
+  line-height: 1.25;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+::-webkit-scrollbar-track {
+  background: #0b1420;
+}
+::-webkit-scrollbar-thumb {
+  background: #2c4157;
+  border-radius: 4px;
+}
+
+@layer components {
+  .panel {
+    @apply rounded-panel border border-aegis-border bg-aegis-panel;
+  }
+  .label-caps {
+    @apply text-[12px] uppercase tracking-[0.06em] text-aegis-muted;
+  }
+  .mono-value {
+    @apply font-mono tabular-nums text-aegis-text;
+  }
+}
