@@ -5,15 +5,18 @@ import Link from "next/link";
 import { useApp } from "@/lib/AppContext";
 import { api } from "@/lib/api";
 import { statusColor, statusPlain } from "@/lib/format";
-import type { PromptItem, TodayOut } from "@/lib/types";
+import type { GuidanceOut, PromptItem, TodayOut } from "@/lib/types";
 import { Panel } from "@/components/ui/Panel";
 import { CheckInPanel } from "./CheckInPanel";
+import { EmergencyPanel } from "./EmergencyPanel";
 import { PromptBanner } from "./PromptBanner";
+import { ReminderSchedule } from "./ReminderSchedule";
 import { UsePath } from "./UsePath";
 
 export function TodayPage() {
   const { selectedCrewId, refresh } = useApp();
   const [today, setToday] = useState<TodayOut | null>(null);
+  const [guidance, setGuidance] = useState<GuidanceOut | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
   const [justCheckedIn, setJustCheckedIn] = useState(false);
@@ -22,8 +25,12 @@ export function TodayPage() {
     try {
       setLoading(true);
       setError(null);
-      const data = await api.getToday(selectedCrewId);
+      const [data, g] = await Promise.all([
+        api.getToday(selectedCrewId),
+        api.getGuidance(selectedCrewId),
+      ]);
       setToday(data);
+      setGuidance(g);
     } catch (e) {
       setError(e instanceof Error ? e.message : "Failed to load Today");
     } finally {
@@ -173,31 +180,48 @@ export function TodayPage() {
           />
         </div>
 
-        <Panel
-          title="Cognitive forecast"
-          action={
-            <span className="text-[11px] uppercase tracking-wide text-aegis-muted">
-              {today.forecast_model}
-            </span>
-          }
-        >
-          <div className="flex items-end justify-between gap-3">
-            <div>
-              <div className="label-caps mb-1">Next-day reaction time</div>
-              <div className="font-mono text-2xl text-aegis-text">
-                {Math.round(today.forecast_next_day_ms)}
-                <span className="ml-1 text-sm text-aegis-muted">ms</span>
+        <div className="flex flex-col gap-3">
+          {(today.reminder_schedule?.length ?? 0) > 0 && (
+            <ReminderSchedule
+              slots={today.reminder_schedule!}
+              astronautId={selectedCrewId}
+            />
+          )}
+          <Panel
+            title="Cognitive forecast"
+            action={
+              <span className="text-[11px] uppercase tracking-wide text-aegis-muted">
+                {today.forecast_model}
+              </span>
+            }
+          >
+            <div className="flex items-end justify-between gap-3">
+              <div>
+                <div className="label-caps mb-1">Next-day reaction time</div>
+                <div className="font-mono text-2xl text-aegis-text">
+                  {Math.round(today.forecast_next_day_ms)}
+                  <span className="ml-1 text-sm text-aegis-muted">ms</span>
+                </div>
               </div>
+              <Link href="/trends" className="text-[13px] text-aegis-cyan hover:underline">
+                Trends →
+              </Link>
             </div>
-            <Link href="/trends" className="text-[13px] text-aegis-cyan hover:underline">
-              Trends →
-            </Link>
-          </div>
-          <p className="mt-2 text-[13px] leading-snug text-aegis-muted">
-            {today.forecast_blurb}
-          </p>
-        </Panel>
+            <p className="mt-2 text-[13px] leading-snug text-aegis-muted">
+              {today.forecast_blurb}
+            </p>
+          </Panel>
+        </div>
       </div>
+
+      {guidance &&
+        (today.overall_status === "red" ||
+          today.symptoms?.attention_needed ||
+          today.overall_status === "amber") && (
+          <div id="emergency" className="scroll-mt-4">
+            <EmergencyPanel guidance={guidance} compact={today.overall_status === "amber"} />
+          </div>
+        )}
     </div>
   );
 }

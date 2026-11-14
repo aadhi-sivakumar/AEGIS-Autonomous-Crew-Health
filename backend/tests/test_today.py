@@ -28,6 +28,33 @@ def test_today_summary():
         assert out.primary_action.get("label")
         assert out.trust_line
         assert out.forecast_blurb
+        assert len(out.reminder_schedule) == 3
+        assert {s.id for s in out.reminder_schedule} == {
+            "morning_checkin",
+            "daily_assessment",
+            "symptom_check",
+        }
+    finally:
+        db.close()
+
+
+def test_reminder_prompts_and_emergency_guidance():
+    from app.services.guidance import build_guidance
+
+    db = SessionLocal()
+    try:
+        out = today_service.build_today(db, "CDR-01")
+        kinds = {p.kind for p in out.prompts}
+        # Without check-in, morning reminder should fire
+        if not out.checkin_done:
+            assert "morning_checkin" in kinds
+            assert any(p.due_label for p in out.prompts)
+
+        g = build_guidance(db, "CDR-01")
+        assert g.emergency_disclaimer
+        assert len(g.emergency_steps) >= 5
+        assert len(g.when_to_escalate) >= 3
+        assert g.emergency_steps[0].title
     finally:
         db.close()
 

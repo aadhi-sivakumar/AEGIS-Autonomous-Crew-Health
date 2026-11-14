@@ -5,6 +5,7 @@ import Link from "next/link";
 import { Panel } from "@/components/ui/Panel";
 import { api } from "@/lib/api";
 import type { CheckIn } from "@/lib/types";
+import { CHECKIN_HOW_TO, MeasureHowTo } from "./MeasureHowTo";
 
 interface Props {
   astronautId: string;
@@ -104,9 +105,11 @@ export function CheckInPanel({ astronautId, existing, onSaved }: Props) {
       }
     >
       <p className="mb-3 text-[13px] leading-snug text-aegis-muted">
-        Tap your sleep, fatigue, and mood. Optional resting HR. This updates today&apos;s personal
-        baseline comparison.
+        Crew-entered measurement: sleep, fatigue, mood, optional resting HR. Updates today&apos;s
+        personal baseline comparison.
       </p>
+
+      <MeasureHowTo steps={CHECKIN_HOW_TO} defaultOpen={!existing} />
 
       <div className="space-y-4">
         <div>
@@ -123,16 +126,19 @@ export function CheckInPanel({ astronautId, existing, onSaved }: Props) {
             onChange={(e) => setSleep(Number(e.target.value))}
             className="w-full accent-[#55B8E8]"
           />
+          <p className="mt-1 text-[11px] text-aegis-muted">
+            Hours in your last sleep opportunity — estimate honestly.
+          </p>
         </div>
 
         <TapScale
-          label="Fatigue"
+          label="Fatigue (right now)"
           value={fatigue}
           onChange={setFatigue}
           low="Fresh"
           high="Exhausted"
         />
-        <TapScale label="Mood" value={mood} onChange={setMood} low="Low" high="Good" />
+        <TapScale label="Mood (right now)" value={mood} onChange={setMood} low="Low" high="Good" />
 
         <div>
           <label className="mb-1.5 block text-[11px] text-aegis-text">
@@ -146,6 +152,10 @@ export function CheckInPanel({ astronautId, existing, onSaved }: Props) {
             onChange={(e) => setHr(e.target.value)}
             className="w-full rounded border border-aegis-border bg-aegis-bg px-2.5 py-2 font-mono text-[12px] text-aegis-text outline-none focus:border-aegis-cyan"
           />
+          <p className="mt-1 text-[11px] leading-snug text-aegis-muted">
+            Sit quietly 2–3 min first. Wrist, chest strap, or wearable resting mode — before caffeine
+            or exercise.
+          </p>
         </div>
 
         <button

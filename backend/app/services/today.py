@@ -13,6 +13,7 @@ from ..schemas import (
     CheckInOut,
     EnvContextOut,
     PromptOut,
+    ReminderSlotOut,
     SymptomCheckIn,
     SymptomCheckOut,
     TodayMetricOut,
@@ -25,7 +26,13 @@ from ..services.guidance import is_assessment_marked_complete
 from ..services.metric_explain import SCIENCE_NOTE, TRUST_LINE, get_metric_explainer
 from ..services.operations import build_operations
 
-PROMPT_KINDS = ("morning_checkin", "weekly_assessment", "pre_eva")
+PROMPT_KINDS = (
+    "morning_checkin",
+    "daily_assessment",
+    "symptom_check",
+    "weekly_assessment",
+    "pre_eva",
+)
 
 
 def _snooze_key(kind: str, astronaut_id: str, mission_day: int) -> str:
@@ -326,34 +333,100 @@ def _primary_action(
     }
 
 
+def build_reminder_schedule(
+    checkin_done: bool,
+    assessed: bool,
+    has_symptoms: bool,
+) -> list[ReminderSlotOut]:
+    return [
+        ReminderSlotOut(
+            id="morning_checkin",
+            label="Morning check-in",
+            window="After wake / before high-load work",
+            done=checkin_done,
+            href="#checkin",
+            how_long="~2 min",
+        ),
+        ReminderSlotOut(
+            id="daily_assessment",
+            label="Reaction-time measurement",
+            window="Morning, or before EVA / docking",
+            done=assessed,
+            href="/assessment",
+            how_long="~1 min",
+        ),
+        ReminderSlotOut(
+            id="symptom_check",
+            label="Symptom checklist",
+            window="With check-in, or if anything feels off",
+            done=has_symptoms,
+            href="/assessment#symptoms",
+            how_long="~1 min",
+        ),
+    ]
+
+
 def build_prompts(
     db: Session,
     astronaut_id: str,
     mission_day: int,
     checkin_done: bool,
     assessed: bool,
+    has_symptoms: bool = False,
 ) -> list[PromptOut]:
     prompts: list[PromptOut] = []
     if not checkin_done and not is_prompt_snoozed(db, "morning_checkin", astronaut_id, mission_day):
         prompts.append(
             PromptOut(
                 kind="morning_checkin",
-                title="Morning check-in",
-                message="Two minutes: sleep, fatigue, mood, optional heart rate.",
+                title="Reminder: morning check-in",
+                message="Due now — log sleep, fatigue, mood, and optional resting HR (~2 min).",
                 href="#checkin",
-                urgency="normal",
+                urgency="high",
+                due_label="Due this morning",
             )
         )
-    # Weekly-ish: every 7 mission days remind assessment if none marked
+    if (
+        checkin_done
+        and not assessed
+        and not is_prompt_snoozed(db, "daily_assessment", astronaut_id, mission_day)
+    ):
+        prompts.append(
+            PromptOut(
+                kind="daily_assessment",
+                title="Reminder: measure reaction time",
+                message="Check-in is done. Run today's RT assessment so readiness uses a fresh measurement.",
+                href="/assessment",
+                urgency="normal",
+                due_label="Due today",
+            )
+        )
+    if (
+        checkin_done
+        and not has_symptoms
+        and not is_prompt_snoozed(db, "symptom_check", astronaut_id, mission_day)
+    ):
+        prompts.append(
+            PromptOut(
+                kind="symptom_check",
+                title="Reminder: symptom checklist",
+                message="Quick self-rate for headache, congestion, dizziness, nausea — catches what charts miss.",
+                href="/assessment#symptoms",
+                urgency="normal",
+                due_label="Due today",
+            )
+        )
+    # Weekly cadence reinforce even if daily was snoozed earlier in the week
     if mission_day % 7 == 0 and not assessed:
         if not is_prompt_snoozed(db, "weekly_assessment", astronaut_id, mission_day):
             prompts.append(
                 PromptOut(
                     kind="weekly_assessment",
                     title="Weekly cognitive check",
-                    message="Run a short reaction-time assessment to refresh your trend.",
+                    message="Mission-day cadence: refresh reaction-time trend this week.",
                     href="/assessment",
                     urgency="normal",
+                    due_label="Due this week",
                 )
             )
     ops = build_operations(db, astronaut_id)
@@ -363,10 +436,11 @@ def build_prompts(
             prompts.append(
                 PromptOut(
                     kind="pre_eva",
-                    title="Pre-EVA readiness",
+                    title="Reminder: pre-EVA readiness",
                     message=eva.justification,
                     href="/operations",
                     urgency="high" if eva.status == "review_required" else "normal",
+                    due_label="Before EVA",
                 )
             )
     return prompts
@@ -459,8 +533,19 @@ def build_today(db: Session, astronaut_id: str) -> TodayOut:
     if env.co2_status in ("amber", "red") and _rank_status(env.co2_status) > _rank_status(status):
         status = env.co2_status  # type: ignore[assignment]
     checkin_done = checkin is not None
-    primary = _primary_action(status, checkin_done, assessed, pattern, symptoms)
-    prompts = build_prompts(db, astronaut_id, mission_day, checkin_done, assessed)
+    has_symptoms = symptoms is not None
+    assessed_today = bool(
+        recent_assessment is not None and recent_assessment.mission_day == mission_day
+    )
+    # Suppress RT reminders once marked complete or an RT was saved today
+    reminder_assessed = assessed or assessed_today
+    primary = _primary_action(status, checkin_done, reminder_assessed, pattern, symptoms)
+    prompts = build_prompts(
+        db, astronaut_id, mission_day, checkin_done, reminder_assessed, has_symptoms
+    )
+    reminder_schedule = build_reminder_schedule(
+        checkin_done, reminder_assessed, has_symptoms
+    )
 
     forecast = bl.simple_forecast(db, astronaut_id, mission_day)
     forecast_blurb = (
@@ -484,6 +569,7 @@ def build_today(db: Session, astronaut_id: str) -> TodayOut:
         checkin_done=checkin_done,
         symptoms=_symptom_out(symptoms) if symptoms else None,
         prompts=prompts,
+        reminder_schedule=reminder_schedule,
         assessment_complete=assessed,
         has_browser_assessment=recent_assessment is not None,
         forecast_next_day_ms=forecast.next_day_estimate,
