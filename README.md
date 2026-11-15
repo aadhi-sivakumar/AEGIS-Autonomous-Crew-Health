@@ -1,4 +1,4 @@
-# AEGIS — Autonomous Crew Health
+# AEGIS - Autonomous Crew Health
 
 Crew-facing readiness assistant for long-duration missions (and Earth analogs). AEGIS compares **today’s signals against each astronaut’s personal baseline**, helps you **measure cognition**, and gives an **advisory go / caution / no-go** for high-stakes work.
 
@@ -6,15 +6,15 @@ Crew-facing readiness assistant for long-duration missions (and Earth analogs). 
 
 ## What problem it solves
 
-On deep-space or remote missions, communication delay means crews must notice health and performance changes themselves — early enough to protect EVA, docking, and maintenance.
+On deep-space or remote missions, communication delay means crews must notice health and performance changes themselves - early enough to protect EVA, docking, and maintenance.
 
 AEGIS supports that loop:
 
-1. **Check in** — log sleep, fatigue, mood  
-2. **Assess** — short in-browser reaction-time test  
-3. **Decide** — Ready / Caution / Not recommended before high-stakes tasks  
+1. **Check in** - log sleep, fatigue, mood  
+2. **Assess** - short in-browser reaction-time test  
+3. **Decide** - Ready / Caution / Not recommended before high-stakes tasks  
 
-Cabin context can use **NASA OSDR RR-1 historical environmental data** (2014 hardware environment — not astronaut medical telemetry). Crew health series are simulated from published ranges for privacy.
+Cabin context can use **NASA OSDR RR-1 historical environmental data** (2014 hardware environment - not astronaut medical telemetry). Crew health series are simulated from published ranges for privacy.
 
 ---
 
@@ -77,10 +77,10 @@ App: http://localhost:3000
 
 ### Sidebar controls
 
-- **Start guided demo** — Emerging Decline + NASA Historical in one click  
-- **Env Data Source** — Simulated Mission Data vs NASA Historical Data  
-- **Demo Scenario** — Stable Mission / Emerging Decline / Recovery After Assessment  
-- **Reset Demo** — Wipes check-ins, assessments, and seeded health; reseeds SQLite. **Keeps** NASA RR-1 cache  
+- **Start guided demo** - Emerging Decline + NASA Historical in one click  
+- **Env Data Source** - Simulated Mission Data vs NASA Historical Data  
+- **Demo Scenario** - Stable Mission / Emerging Decline / Recovery After Assessment  
+- **Reset Demo** - Wipes check-ins, assessments, and seeded health; reseeds SQLite. **Keeps** NASA RR-1 cache  
 
 ---
 
@@ -103,6 +103,12 @@ App: http://localhost:3000
 
 ---
 
+## SI / AI acknowledgment
+
+Super Intelligence (SI) tools were used for debugging and to help build the frontend. This project does not use, contain, or modify NASA logos or official NASA design elements.
+
+---
+
 ## Offline use
 
 1. Start backend + frontend once (so RR-1 can cache if the network is available).  
@@ -119,7 +125,7 @@ source .venv/bin/activate
 PYTHONPATH=. pytest -q
 ```
 
-Prototype decision rules: [`data/PROTOTYPE_THRESHOLDS.md`](data/PROTOTYPE_THRESHOLDS.md) — demo thresholds only, not clinical or official NASA medical limits.
+Prototype decision rules: [`data/PROTOTYPE_THRESHOLDS.md`](data/PROTOTYPE_THRESHOLDS.md) - demo thresholds only, not clinical or official NASA medical limits.
 
 ---
 
