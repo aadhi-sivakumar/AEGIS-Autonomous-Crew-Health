@@ -141,8 +141,9 @@ Prototype decision rules: [`data/PROTOTYPE_THRESHOLDS.md`](data/PROTOTYPE_THRESH
 
 ## Presentation
 
-**Slides:** [AEGIS Presentation](https://docs.google.com/presentation/d/1MD4rB68qgNYVZvpmNBJEdPC8B4InBwUH/edit?usp=sharing&ouid=113403549939729595700&rtpof=true&sd=true)
+**Slides:** [AEGIS Slides](https://docs.google.com/presentation/d/1MD4rB68qgNYVZvpmNBJEdPC8B4InBwUH/edit?usp=drive_link&ouid=113403549939729595700&rtpof=true&sd=true)
 
-**Video:**
+**Video:** [AEGIS Video](https://drive.google.com/file/d/1G1yaJlzLCAUJJ5wQfXnc8LGMEFtUFAmr/view?usp=sharing)
+
 
 ---
