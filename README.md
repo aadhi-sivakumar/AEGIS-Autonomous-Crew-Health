@@ -1,6 +1,6 @@
 # AEGIS - Autonomous Crew Health
 
-Crew-facing readiness assistant for long-duration missions (and Earth analogs). AEGIS compares **today’s signals against each astronaut’s personal baseline**, helps you **measure cognition**, and gives an **advisory go / caution / no-go** for high-stakes work.
+Crew-facing readiness assistant for long-duration missions. AEGIS compares **today’s signals against each astronaut’s personal baseline**, helps you **measure cognition**, and gives an **advisory go / caution / no-go** for high-stakes work.
 
 ---
 
@@ -84,7 +84,7 @@ App: http://localhost:3000
 
 ---
 
-## Stack
+## Tech Stack
 
 - **Frontend:** Next.js (App Router), TypeScript, Tailwind CSS, Recharts  
 - **Backend:** FastAPI, SQLAlchemy, SQLite, pandas / NumPy / scikit-learn, cryptography (AES-GCM)  
@@ -92,7 +92,7 @@ App: http://localhost:3000
 
 ---
 
-## Data provenance
+## Data:
 
 | Source | Label |
 |--------|--------|
