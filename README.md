@@ -105,7 +105,7 @@ App: http://localhost:3000
 
 ## SI / AI acknowledgment
 
-Super Intelligence (SI) tools were used for debugging and to help build the frontend. This project does not use, contain, or modify NASA logos or official NASA design elements.
+AI tools (Cursor) were used for debugging and to help build the frontend. This project does not use, contain, or modify NASA logos or official NASA design elements.
 
 ---
 
