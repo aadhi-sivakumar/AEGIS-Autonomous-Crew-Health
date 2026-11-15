@@ -136,3 +136,13 @@ Prototype decision rules: [`data/PROTOTYPE_THRESHOLDS.md`](data/PROTOTYPE_THRESH
 /backend    FastAPI services + routers
 /data       SQLite, fixtures, NASA cache, keys, encrypted reports
 ```
+
+---
+
+## Presentation
+
+**Slides:** [AEGIS Presentation](https://docs.google.com/presentation/d/1MD4rB68qgNYVZvpmNBJEdPC8B4InBwUH/edit?usp=sharing&ouid=113403549939729595700&rtpof=true&sd=true)
+
+**Video:**
+
+---
